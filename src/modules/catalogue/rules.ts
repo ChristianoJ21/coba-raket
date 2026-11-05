@@ -1,0 +1,33 @@
+/** Catalogue rules. Pure functions only: no framework, database or adapter imports. */
+
+export type Tier = 1 | 2 | 3;
+
+export type RacketStatus = "available" | "in_trial" | "maintenance" | "sold" | "retired";
+export type ConditionGrade = "new" | "good" | "fair" | "retired";
+export type PlayerLevel = "beginner" | "intermediate" | "advanced";
+
+export interface Racket {
+  id: string;
+  code: string;
+  brand: string;
+  model: string;
+  headSizeSqIn: number;
+  weightG: number;
+  levelFit: PlayerLevel[];
+  conditionGrade: ConditionGrade;
+  status: RacketStatus;
+  costIdr: number;
+  salePriceIdr: number | null;
+}
+
+/** PRD section 7.2: Tier 1 under Rp1.5M, Tier 2 Rp1.5M to Rp3M inclusive, Tier 3 above Rp3M. */
+export function tierForValue(costIdr: number): Tier {
+  if (costIdr < 1_500_000) return 1;
+  if (costIdr <= 3_000_000) return 2;
+  return 3;
+}
+
+/** A racket may be offered in a trial only if it is in stock and in usable condition (PRD AI-2). */
+export function isTrialEligible(racket: Pick<Racket, "status" | "conditionGrade">): boolean {
+  return racket.status === "available" && racket.conditionGrade !== "retired";
+}
