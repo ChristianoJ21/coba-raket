@@ -24,6 +24,12 @@ export const DEPOSIT_BY_TIER: Record<Tier, number> = { 1: 250_000, 2: 500_000, 3
 // ---------------------------------------------------------------------------
 // Pricing
 // ---------------------------------------------------------------------------
+/** Fee and deposit for one racket, for display before booking (PAY-1). */
+export function trialPriceFor(costIdr: number): { tier: Tier; feeIdr: number; depositIdr: number } {
+  const tier = tierForValue(costIdr);
+  return { tier, feeIdr: POLICY.trialFeeIdr, depositIdr: DEPOSIT_BY_TIER[tier] };
+}
+
 export type RuleFailure =
   | { ok: false; code: "NO_RACKETS" | "TOO_MANY_RACKETS" | "DUPLICATE_RACKET" | "TIER3_NOT_ALLOWED"; message: string };
 
