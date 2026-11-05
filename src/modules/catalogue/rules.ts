@@ -2,7 +2,8 @@
 
 export type Tier = 1 | 2 | 3;
 
-export type RacketStatus = "available" | "in_trial" | "maintenance" | "sold" | "retired";
+/** Physical racket status (PRD ADM-1). Date availability is decided by bookings, not by this. */
+export type RacketStatus = "ready" | "reserved" | "out" | "servicing" | "retired" | "sold";
 export type ConditionGrade = "new" | "good" | "fair" | "retired";
 export type PlayerLevel = "beginner" | "intermediate" | "advanced";
 
@@ -31,7 +32,7 @@ export function tierForValue(costIdr: number): Tier {
 
 /** A racket may be offered in a trial only if it is in stock and in usable condition (PRD AI-2). */
 export function isTrialEligible(racket: Pick<Racket, "status" | "conditionGrade">): boolean {
-  return racket.status === "available" && racket.conditionGrade !== "retired";
+  return racket.status === "ready" && racket.conditionGrade !== "retired";
 }
 
 /** A row of `public.rackets` exactly as the database returns it. */

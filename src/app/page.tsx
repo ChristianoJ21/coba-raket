@@ -7,11 +7,12 @@ import { formatRupiah } from "@/shared/format";
 export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<Racket["status"], string> = {
-  available: "Tersedia",
-  in_trial: "Sedang dicoba",
-  maintenance: "Dalam perawatan",
-  sold: "Terjual",
+  ready: "Tersedia",
+  reserved: "Sudah dipesan",
+  out: "Sedang dicoba",
+  servicing: "Dalam perawatan",
   retired: "Tidak dipakai",
+  sold: "Terjual",
 };
 
 const CONDITION_LABEL: Record<Racket["conditionGrade"], string> = {
@@ -63,7 +64,7 @@ export default async function Home() {
                 Biaya coba {formatRupiah(POLICY.trialFeeIdr)} · Deposit kembali{" "}
                 {formatRupiah(DEPOSIT_BY_TIER[tierForValue(r.costIdr)])}
               </p>
-              {r.status !== "available" ? <span className="badge">{STATUS_LABEL[r.status]}</span> : null}
+              {r.status !== "ready" ? <span className="badge">{STATUS_LABEL[r.status]}</span> : null}
             </li>
           ))}
         </ul>
