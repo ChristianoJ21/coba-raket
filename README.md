@@ -24,6 +24,8 @@ npm run dev
 
 Apply `supabase/migrations/0001_init.sql` to your development Supabase project (SQL editor or the Supabase CLI).
 
+Then run `supabase/seed.sql` in the same project. It adds 7 sample rackets covering all three deposit tiers and is safe to re-run. The specs are placeholders: replace them with your real stock before customers see the catalogue.
+
 ## Checks
 
 ```bash
