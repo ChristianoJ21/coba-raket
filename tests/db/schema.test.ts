@@ -4,7 +4,7 @@
  *
  *   TEST_DATABASE_URL=postgres://localhost:5432/coba_test npm run test:db
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { Pool, type PoolClient } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildNextEvent, type Hex } from "@/modules/passport";
@@ -38,7 +38,10 @@ run("database guarantees", () => {
     await pool.query("drop schema if exists public cascade; drop schema if exists auth cascade; create schema public;");
     await pool.query("create extension if not exists pgcrypto");
     await pool.query(readFileSync("tests/db-setup.sql", "utf8"));
-    await pool.query(readFileSync("supabase/migrations/0001_init.sql", "utf8"));
+    // Apply every migration in order, exactly as a real project would receive them.
+    for (const file of readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql")).sort()) {
+      await pool.query(readFileSync(`supabase/migrations/${file}`, "utf8"));
+    }
   });
 
   afterAll(async () => {
@@ -221,6 +224,24 @@ run("database guarantees", () => {
       await asUser(alice, async (c) => {
         await expect(c.query("update rackets set status = 'sold'")).resolves.toMatchObject({ rowCount: 0 });
       });
+    });
+  });
+
+  describe("racket status (PRD ADM-1)", () => {
+    it("defaults new rackets to ready", async () => {
+      const id = await racket("R-ST1");
+      const statuses = await rows<{ status: string }>("select status from rackets where id = $1", [id]);
+      expect(statuses).toEqual([{ status: "ready" }]);
+    });
+
+    it("accepts exactly the six PRD statuses", async () => {
+      const id = await racket("R-ST2");
+      for (const status of ["ready", "reserved", "out", "servicing", "retired", "sold"]) {
+        await expect(pool.query("update rackets set status = $1 where id = $2", [status, id])).resolves.toBeDefined();
+      }
+      for (const status of ["available", "in_trial", "maintenance", "READY"]) {
+        await expect(pool.query("update rackets set status = $1 where id = $2", [status, id])).rejects.toThrow(/rackets_status_check/);
+      }
     });
   });
 });

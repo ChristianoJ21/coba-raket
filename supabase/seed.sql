@@ -6,11 +6,11 @@
 insert into public.rackets
   (code, brand, model, head_size_sq_in, weight_g, balance_mm, grip_size, string_pattern, level_fit, condition_grade, status, cost_idr)
 values
-  ('R-001', 'Wilson',  'Tour Slam Lite',      105, 265, 330, 'L2', '16x19', '{beginner}',                'good', 'available',   784000),
-  ('R-002', 'Babolat', 'Boost Drive',         105, 260, 325, 'L2', '16x19', '{beginner}',                'new',  'available',  1100000),
-  ('R-003', 'Head',    'Speed Lite',          100, 270, 320, 'L2', '16x19', '{beginner,intermediate}',   'good', 'available',  2200000),
-  ('R-004', 'Yonex',   'Ezone 100L',          100, 285, 325, 'L2', '16x19', '{intermediate}',            'good', 'available',  2400000),
-  ('R-005', 'Babolat', 'Pure Drive Team',     100, 285, 325, 'L2', '16x19', '{intermediate,advanced}',   'good', 'available',  3950000),
-  ('R-006', 'Wilson',  'Clash 100',           100, 295, 320, 'L2', '16x19', '{intermediate,advanced}',   'good', 'available',  3300000),
-  ('R-007', 'Head',    'Gravity Pro (bekas)', 100, 315, 315, 'L2', '16x20', '{advanced}',                'fair', 'available',  1900000)
+  ('R-001', 'Wilson',  'Tour Slam Lite',      105, 265, 330, 'L2', '16x19', '{beginner}',                'good', 'ready',     784000),
+  ('R-002', 'Babolat', 'Boost Drive',         105, 260, 325, 'L2', '16x19', '{beginner}',                'new',  'ready',    1100000),
+  ('R-003', 'Head',    'Speed Lite',          100, 270, 320, 'L2', '16x19', '{beginner,intermediate}',   'good', 'ready',    2200000),
+  ('R-004', 'Yonex',   'Ezone 100L',          100, 285, 325, 'L2', '16x19', '{intermediate}',            'good', 'ready',    2400000),
+  ('R-005', 'Babolat', 'Pure Drive Team',     100, 285, 325, 'L2', '16x19', '{intermediate,advanced}',   'good', 'ready',    3950000),
+  ('R-006', 'Wilson',  'Clash 100',           100, 295, 320, 'L2', '16x19', '{intermediate,advanced}',   'good', 'ready',    3300000),
+  ('R-007', 'Head',    'Gravity Pro (bekas)', 100, 315, 315, 'L2', '16x20', '{advanced}',                'fair', 'ready',    1900000)
 on conflict (code) do nothing;
