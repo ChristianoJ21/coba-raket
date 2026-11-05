@@ -20,7 +20,7 @@ function racket(over: Partial<Racket> & { id: string }): Racket {
     weightG: 280,
     levelFit: ["beginner", "intermediate"],
     conditionGrade: "good",
-    status: "available",
+    status: "ready",
     costIdr: 1_200_000,
     salePriceIdr: null,
     ...over,
@@ -54,7 +54,9 @@ describe("shortlist", () => {
   it("never offers retired, reserved or out-of-stock rackets", () => {
     const pool = [
       racket({ id: "ok" }),
-      racket({ id: "trial", status: "in_trial" }),
+      racket({ id: "trial", status: "out" }),
+      racket({ id: "reserved", status: "reserved" }),
+      racket({ id: "servicing", status: "servicing" }),
       racket({ id: "sold", status: "sold" }),
       racket({ id: "retired", conditionGrade: "retired" }),
     ];

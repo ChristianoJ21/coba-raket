@@ -12,7 +12,7 @@ const row: RacketRow = {
   string_pattern: "16x19",
   level_fit: ["beginner", "expert", "intermediate"],
   condition_grade: "good",
-  status: "available",
+  status: "ready",
   cost_idr: 784_000,
   sale_price_idr: null,
 };
@@ -39,8 +39,10 @@ describe("tierForValue", () => {
 
 describe("isTrialEligible", () => {
   it("rejects rackets that are out, in service or retired", () => {
-    expect(isTrialEligible({ status: "available", conditionGrade: "good" })).toBe(true);
-    expect(isTrialEligible({ status: "in_trial", conditionGrade: "good" })).toBe(false);
-    expect(isTrialEligible({ status: "available", conditionGrade: "retired" })).toBe(false);
+    expect(isTrialEligible({ status: "ready", conditionGrade: "good" })).toBe(true);
+    for (const status of ["reserved", "out", "servicing", "retired", "sold"] as const) {
+      expect(isTrialEligible({ status, conditionGrade: "good" })).toBe(false);
+    }
+    expect(isTrialEligible({ status: "ready", conditionGrade: "retired" })).toBe(false);
   });
 });
