@@ -2,6 +2,7 @@ export {
   POLICY,
   DEPOSIT_BY_TIER,
   priceBooking,
+  trialPriceFor,
   scheduleFor,
   daysLate,
   lateFeeIdr,

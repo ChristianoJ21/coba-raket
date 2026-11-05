@@ -72,3 +72,75 @@ export function racketFromRow(row: RacketRow): Racket {
     salePriceIdr: row.sale_price_idr,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Availability (CAT-1): when can a racket next be picked up?
+// Booking periods come from booking_items.period and already include the turnaround day.
+// ---------------------------------------------------------------------------
+export interface Period {
+  start: Date;
+  end: Date; // exclusive
+}
+
+/** Parse a PostgreSQL tstzrange such as `["2026-11-07 02:00:00+00","2026-11-11 10:00:00+00")`. Returns null for empty or unbounded ranges. */
+export function parseTstzRange(text: string): Period | null {
+  const m = /^[[(]"?([^",]*)"?,"?([^")\]]*)"?[)\]]$/.exec(text.trim());
+  if (!m || !m[1] || !m[2]) return null;
+  const toDate = (s: string) => new Date(s.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00"));
+  const start = toDate(m[1]);
+  const end = toDate(m[2]);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return null;
+  return { start, end };
+}
+
+/** Earliest moment at or after `now` that no period covers. Back-to-back periods are chained. */
+export function nextFreeAt(periods: readonly Period[], now: Date): Date {
+  let t = now;
+  for (const p of [...periods].sort((a, b) => a.start.getTime() - b.start.getTime())) {
+    if (p.end <= t) continue;
+    if (p.start > t) break;
+    t = p.end;
+  }
+  return t;
+}
+
+export type Availability =
+  | { kind: "now" }
+  | { kind: "from"; at: Date }
+  | { kind: "unavailable"; status: RacketStatus };
+
+/** What the catalogue tells a customer about one racket. */
+export function availabilityOf(
+  racket: Pick<Racket, "status" | "conditionGrade">,
+  periods: readonly Period[],
+  now: Date,
+): Availability {
+  const free = nextFreeAt(periods, now);
+  if (free > now && racket.conditionGrade !== "retired" && racket.status !== "servicing") {
+    return { kind: "from", at: free };
+  }
+  return isTrialEligible(racket) ? { kind: "now" } : { kind: "unavailable", status: racket.status };
+}
+
+// ---------------------------------------------------------------------------
+// Filters (CAT-2). Every filter is optional and they combine with AND.
+// ---------------------------------------------------------------------------
+export interface CatalogueFilters {
+  level?: PlayerLevel;
+  maxWeightG?: number;
+  grip?: string;
+  maxBudgetIdr?: number;
+}
+
+export function filterRackets<T extends Pick<Racket, "levelFit" | "weightG" | "gripSize" | "costIdr">>(
+  rackets: readonly T[],
+  f: CatalogueFilters,
+): T[] {
+  return rackets.filter(
+    (r) =>
+      (f.level === undefined || r.levelFit.includes(f.level)) &&
+      (f.maxWeightG === undefined || r.weightG <= f.maxWeightG) &&
+      (f.grip === undefined || r.gripSize === f.grip) &&
+      (f.maxBudgetIdr === undefined || r.costIdr <= f.maxBudgetIdr),
+  );
+}

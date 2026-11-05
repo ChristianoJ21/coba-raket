@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEPOSIT_BY_TIER,
   POLICY,
   canTransition,
   cancellationOutcome,
@@ -10,6 +11,7 @@ import {
   lateFeeIdr,
   priceBooking,
   scheduleFor,
+  trialPriceFor,
 } from "./rules";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -123,5 +125,13 @@ describe("booking state machine", () => {
     expect(isTerminal("settled")).toBe(true);
     expect(isTerminal("cancelled")).toBe(true);
     expect(canTransition("settled", "inspected")).toBe(false);
+  });
+});
+
+describe("trialPriceFor", () => {
+  it("matches the deposit tier table", () => {
+    expect(trialPriceFor(784_000)).toEqual({ tier: 1, feeIdr: POLICY.trialFeeIdr, depositIdr: DEPOSIT_BY_TIER[1] });
+    expect(trialPriceFor(2_400_000)).toMatchObject({ tier: 2, depositIdr: DEPOSIT_BY_TIER[2] });
+    expect(trialPriceFor(3_950_000)).toMatchObject({ tier: 3, depositIdr: DEPOSIT_BY_TIER[3] });
   });
 });
